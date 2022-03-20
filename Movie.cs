@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace MovieApi
 {
@@ -20,6 +21,11 @@ namespace MovieApi
             Language = language;
             Duration = duration;
             ReleaseYear = releaseYear;
+        }
+
+        public Movie()
+        {
+
         }
     }
 }

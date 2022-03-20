@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.IO;
 using System.Net.Http;
@@ -12,10 +13,10 @@ namespace MovieApi.Controllers
     [Route("[controller]")]
     public class MovieController : ControllerBase
     {
-        public List<Movie> database;
+        public List<Movie> database = new List<Movie>();
 
         [HttpPost]
-        public IActionResult Metadata(Movie movie)
+        public ActionResult Metadata(Movie movie)
         {
             database.Add(movie);
             return Ok();
