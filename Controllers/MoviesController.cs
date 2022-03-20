@@ -37,7 +37,7 @@ namespace MovieApi.Controllers
                 }
 
             }
-            var orderedMovieStatistics = movieStatistics.OrderBy(x => x.Views).ThenBy(x => x.ReleaseYear).ToList<Statistic>();
+            var orderedMovieStatistics = movieStatistics.OrderByDescending(x => x.Views).ThenByDescending(x => x.ReleaseYear).ToList<Statistic>();
             MovieStatistics = orderedMovieStatistics;
         }
 
