@@ -19,8 +19,8 @@ namespace MovieApi.Controllers
             return Ok();
         }
 
-        [HttpGet("{id}")]
-        public IActionResult Metadata(int id)
+        [HttpGet("{movieId}")]
+        public IActionResult Metadata(int movieId)
         {
             var movieRecords = System.IO.File.ReadLines("MovieData/metadata.csv").Skip(1);
             List<Metadatum> matchedMetadatumRecords = new List<Metadatum>();
@@ -28,7 +28,7 @@ namespace MovieApi.Controllers
             foreach (var record in movieRecords)
             {
                 var splitRecord = record.Split(",");
-                if (int.Parse(splitRecord[1]) == id && !String.IsNullOrWhiteSpace(splitRecord[2].ToString()) &&
+                if (int.Parse(splitRecord[1]) == movieId && !String.IsNullOrWhiteSpace(splitRecord[2].ToString()) &&
                     !String.IsNullOrWhiteSpace(splitRecord[3].ToString()) &&
                     !String.IsNullOrWhiteSpace(splitRecord[4].ToString()) &&
                     !String.IsNullOrWhiteSpace(splitRecord[5].ToString()) && splitRecord.Length == 6)
