@@ -4,44 +4,73 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace MovieApi.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
-    public class MetaDataController : ControllerBase
+    [Route("[controller]")]
+    public class MetadataController : Controller
     {
-        // GET: api/<ValuesController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
+        public List<Movie> database = new List<Movie>();
 
-        // GET api/<ValuesController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/<ValuesController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public ActionResult Metadata(Movie movie)
         {
+            database.Add(movie);
+            return Ok();
         }
 
-        // PUT api/<ValuesController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpGet("{id}")]
+        public IActionResult Metadata(int id)
         {
-        }
+            var movieRecords = System.IO.File.ReadLines("MovieData/metadata.csv").Skip(1);
+            List<Metadatum> matchedMetadatumRecords = new List<Metadatum>();
+            List<Movie> matchedMovieRecords = new List<Movie>();
+            foreach (var record in movieRecords)
+            {
+                var splitRecord = record.Split(",");
+                if (int.Parse(splitRecord[1]) == id && !String.IsNullOrWhiteSpace(splitRecord[2].ToString()) &&
+                    !String.IsNullOrWhiteSpace(splitRecord[3].ToString()) &&
+                    !String.IsNullOrWhiteSpace(splitRecord[4].ToString()) &&
+                    !String.IsNullOrWhiteSpace(splitRecord[5].ToString()) && splitRecord.Length == 6)
+                {
+                    foreach (Metadatum metadatum in matchedMetadatumRecords)
+                    {
+                        if (metadatum.Language == splitRecord[3])
+                        {
+                            //Only want metadata with highest id if language is the same for a movie.
+                            if (metadatum.MetadatumId < int.Parse(splitRecord[0]))
+                            {
+                                matchedMetadatumRecords.Remove(metadatum);
+                                matchedMetadatumRecords.Add(new Metadatum(int.Parse(splitRecord[0]),
+                      int.Parse(splitRecord[1]),
+                      splitRecord[2], splitRecord[3], splitRecord[4], int.Parse(splitRecord[5])));
+                                break;
 
-        // DELETE api/<ValuesController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+                            }
+                        }
+                    }
+
+                    //Add metadata if its language not in list
+                    if (matchedMetadatumRecords.Find((metadatum) => metadatum.Language == splitRecord[3]) == null)
+                    {
+                        matchedMetadatumRecords.Add(new Metadatum(int.Parse(splitRecord[0]),
+                      int.Parse(splitRecord[1]),
+                      splitRecord[2], splitRecord[3], splitRecord[4], int.Parse(splitRecord[5])));
+                    }
+                }
+            }
+            if (matchedMetadatumRecords.Count != 0)
+            {
+                var orderedMetadatumRecords = matchedMetadatumRecords.OrderBy(x => x.Language);
+
+                foreach (Metadatum metadatum in orderedMetadatumRecords)
+                {
+                    matchedMovieRecords.Add(new Movie(metadatum.MovieId, metadatum.Title, metadatum.Language,
+                   metadatum.Duration, metadatum.ReleaseYear));
+                }
+                return Ok(matchedMovieRecords);
+            }
+            return NotFound();
         }
     }
 }
